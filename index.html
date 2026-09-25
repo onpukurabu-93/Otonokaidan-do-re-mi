@@ -1,1 +1,360 @@
-
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 ドレミをおぼえよう</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Hiragino Kaku Gothic', sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .screen {
+            display: none;
+            text-align: center;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        h1 {
+            color: #ff6b6b;
+            font-size: 2em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 1.5em;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-large {
+            width: 100%;
+            font-size: 1.8em;
+        }
+        
+        .note-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 20px;
+            margin: 20px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        
+        .quiz-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .quiz-btn {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            overflow: hidden;
+            position: relative;
+            height: 120px;
+        }
+        
+        .quiz-btn:active {
+            transform: scale(0.95);
+            background: #667eea;
+        }
+        
+        .quiz-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .quiz-btn.correct {
+            background: #4ade80;
+            border-color: #22c55e;
+        }
+        
+        .quiz-btn.incorrect {
+            background: #f87171;
+            border-color: #ef4444;
+        }
+        
+        .progress {
+            font-size: 1.2em;
+            color: #666;
+            margin: 20px 0;
+        }
+        
+        .stars {
+            font-size: 2em;
+            margin: 20px 0;
+        }
+        
+        .mode-select {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .mode-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 20px;
+            font-size: 1.3em;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .mode-btn:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- タイトル画面 -->
+        <div id="titleScreen" class="screen active">
+            <h1>🎵 ドレミをおぼえよう</h1>
+            <button class="btn btn-large" onclick="showMenu()">▶️ スタート</button>
+        </div>
+        
+        <!-- メニュー画面 -->
+        <div id="menuScreen" class="screen">
+            <h1>モードをえらんで</h1>
+            <div class="mode-select">
+                <button class="mode-btn" onclick="startLearning()">🎹 ならう（じゅんばん）</button>
+                <button class="mode-btn" onclick="startLearningShuffle()">🎹 ならう（シャッフル）</button>
+                <button class="mode-btn" onclick="startQuiz()">❓ クイズ</button>
+                <button class="mode-btn" onclick="showTitle()">🏠 もどる</button>
+            </div>
+        </div>
+        
+        <!-- 学習画面 -->
+        <div id="learningScreen" class="screen">
+            <h1 id="noteTitle">ド</h1>
+            <img id="noteImage" class="note-image" src="" alt="音符">
+            <div class="progress" id="progress"></div>
+            <button class="btn" onclick="nextNote()">▶️ つぎ</button>
+            <button class="btn" onclick="showMenu()">🏠 もどる</button>
+        </div>
+        
+        <!-- クイズ画面 -->
+        <div id="quizScreen" class="screen">
+            <h1>これなーんだ？</h1>
+            <img id="quizImage" class="note-image" src="" alt="音符">
+            <div class="stars" id="stars"></div>
+            <div class="quiz-buttons" id="quizButtons"></div>
+            <button class="btn" onclick="showMenu()" style="margin-top: 20px;">🏠 おわる</button>
+        </div>
+        
+        <!-- 結果画面 -->
+        <div id="resultScreen" class="screen">
+            <h1>🎉 がんばったね！</h1>
+            <div class="stars" id="resultStars"></div>
+            <button class="btn btn-large" onclick="showMenu()">🏠 もどる</button>
+        </div>
+    </div>
+    
+    <script>
+        // データ
+        const notes = ['do', 're', 'mi', 'fa', 'so', 'ra', 'si'];
+        const noteNames = {
+            'do': 'ド',
+            're': 'レ',
+            'mi': 'ミ',
+            'fa': 'ファ',
+            'so': 'ソ',
+            'ra': 'ラ',
+            'si': 'シ'
+        };
+        
+        let currentNoteIndex = 0;
+        let quizScore = 0;
+        let quizQuestions = [];
+        let isShuffle = false;
+        
+        // 画面切り替え
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+        
+        function showTitle() {
+            showScreen('titleScreen');
+        }
+        
+        function showMenu() {
+            showScreen('menuScreen');
+        }
+        
+        // 学習開始
+        function startLearning() {
+            isShuffle = false;
+            currentNoteIndex = 0;
+            showScreen('learningScreen');
+            showNote();
+        }
+        
+        function startLearningShuffle() {
+            isShuffle = true;
+            currentNoteIndex = 0;
+            quizQuestions = [...notes].sort(() => Math.random() - 0.5);
+            showScreen('learningScreen');
+            showNote();
+        }
+        
+        // 音符表示
+        function showNote() {
+            const noteList = isShuffle ? quizQuestions : notes;
+            const note = noteList[currentNoteIndex];
+            
+            document.getElementById('noteTitle').textContent = noteNames[note];
+            document.getElementById('noteImage').src = `doremi_song_kaidan1_${note}.png`;
+            document.getElementById('progress').textContent = `${currentNoteIndex + 1} / ${noteList.length}`;
+            
+            // 音声再生
+            playAudio(`doremi_song_voice1_${note}.m4a`);
+            setTimeout(() => {
+                playAudio(`piano_${note}.m4a`);
+            }, 1000);
+        }
+        
+        function nextNote() {
+            const noteList = isShuffle ? quizQuestions : notes;
+            currentNoteIndex++;
+            
+            if (currentNoteIndex >= noteList.length) {
+                currentNoteIndex = 0;
+            }
+            
+            showNote();
+        }
+        
+        // クイズ開始
+        function startQuiz() {
+            quizScore = 0;
+            quizQuestions = [...notes].sort(() => Math.random() - 0.5);
+            currentNoteIndex = 0;
+            showScreen('quizScreen');
+            showQuizQuestion();
+        }
+        
+        function showQuizQuestion() {
+            if (currentNoteIndex >= quizQuestions.length) {
+                showResult();
+                return;
+            }
+            
+            const note = quizQuestions[currentNoteIndex];
+            document.getElementById('quizImage').src = `doremi_song_kaidan1_${note}.png`;
+            document.getElementById('stars').textContent = '⭐'.repeat(quizScore);
+            
+            // ボタン作成
+            const buttonsDiv = document.getElementById('quizButtons');
+            buttonsDiv.innerHTML = '';
+            
+            const buttonNotes = ['do', 're', 'mi', 'fa', 'so', 'ra', 'si'];
+            buttonNotes.forEach(btnNote => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-btn';
+                btn.innerHTML = `<img src="botan.png" style="object-position: ${getObjectPosition(btnNote)}">`;
+                btn.onclick = () => checkAnswer(btnNote, note);
+                buttonsDiv.appendChild(btn);
+            });
+            
+            // 音声再生
+            playAudio(`doremi_song_voice1_${note}.m4a`);
+        }
+        
+        function getObjectPosition(note) {
+            const positions = {
+                'do': '0% 0%',
+                're': '0% 20%',
+                'mi': '0% 40%',
+                'fa': '0% 60%',
+                'so': '100% 0%',
+                'ra': '100% 20%',
+                'si': '100% 40%'
+            };
+            return positions[note];
+        }
+        
+        function checkAnswer(selectedNote, correctNote) {
+            const buttons = document.querySelectorAll('.quiz-btn');
+            
+            buttons.forEach((btn, index) => {
+                const btnNote = ['do', 're', 'mi', 'fa', 'so', 'ra', 'si'][index];
+                btn.disabled = true;
+                
+                if (btnNote === correctNote) {
+                    btn.classList.add('correct');
+                }
+            });
+            
+            if (selectedNote === correctNote) {
+                quizScore++;
+                playAudio('piano_' + correctNote + '.m4a');
+            } else {
+                playAudio('piano_' + correctNote + '.m4a');
+            }
+            
+            setTimeout(() => {
+                currentNoteIndex++;
+                showQuizQuestion();
+            }, 1500);
+        }
+        
+        function showResult() {
+            showScreen('resultScreen');
+            document.getElementById('resultStars').textContent = '⭐'.repeat(quizScore);
+        }
+        
+        // 音声再生
+        function playAudio(filename) {
+            const audio = new Audio(filename);
+            audio.play().catch(e => console.log('Audio error:', e));
+        }
+    </script>
+</body>
+</html>
